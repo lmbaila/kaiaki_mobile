@@ -14,10 +14,11 @@ router.get('/:id', async(req, res) => {
         .select('imovel_tb.id_imovel as id_imovel')
         .select('name_type', 'name_imovel','latitude', 'longitude','description_imovel','price_day', 'price_week', 'price_mouth', 'name_city', 'city_code')
         .where('imovel_tb.id_imovel', '=', `${id}`).then(function (dados) {
-            
+            // if(dados.length ==0)
+            //     return res.status(404).json({message: 'the imovel with the given ID was not gound', status: false});
+           
             const imovel = dados[0];
             imovel.id_imovel = req.params.id; 
-
             knex('comodide_tb')
             .innerJoin('imovel_comodide_tb',  'comodide_tb.id_comodide','=', 'imovel_comodide_tb.id_comodide')
             .select('comodide_tb.id_comodide as id_comodide')
@@ -25,16 +26,20 @@ router.get('/:id', async(req, res) => {
             .where('imovel_comodide_tb.id_imovel', '=', `${id}`).orderBy('name_comodide', 'asc')
             .then(function (dados){
                 imovel.comodide = dados;
-                for(let i = 0; i <dados.length; i++){
+                for(let i = 0; i < dados.length; i++){
                     imovel.comodide[i].id_comodide = crypto.encrypt(`${dados.id_comodide}`);
                 }
-                
-                //return res.status(200).json(imovel);
+                knex('photo_imovel_tb')
+                .select('id_photo_imovel', 'url', 'description_photo' , 'featured_photo')
+                .where('id_imovel', '=', `${id}`).then(function (dados) {
+                    imovel.photo_imovel = dados;
+                    return res.status(200).json(imovel);
+                });
+                     
+                //return res.status(404).json({message: 'the imovel with the given ID was not gound', status: false});
             }).catch(function(error){
                 return res.send(error);
-            });
-            
-            
+            });          
         }).catch(function(error) {
             return res.send(error);
         });
