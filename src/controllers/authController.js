@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
+const crypto = require('../config/crypto');
 router.post('/register', async(req, res) => {
     try {
         const password_hash = await bcrypt.hash(req.body.password, 10);
@@ -19,7 +20,11 @@ router.post('/register', async(req, res) => {
       // console.log(req.body);
         knex('user_tb').insert(data)
         .then( function (result) {
-            return res.json({ success: true, message: 'ok' });     // respond back to request
+            return res.json({ success: true, message: 'ok'  });     // respond back to request
+         }).catch(function(error) {
+             if(error.code == 'ER_DUP_ENTRY')
+                return res.status(400).json({ code: error.code, error: 'Duplicate entry' })
+             
          });
         //return res.json(req.body);
     }catch(ex){
