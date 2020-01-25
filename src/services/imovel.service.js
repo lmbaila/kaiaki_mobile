@@ -43,4 +43,28 @@ function getImovelByID(req, res) {
         return res.status(400).send({error: 'request faild'});
     }
 }
-module.exports = {getImovelByID}
+
+function getAllImovel(req, res) {
+    try{
+        knex('imovel_tb').leftJoin('reting_tb',  'imovel_tb.id_imovel', 'reting_tb.id_imovel')
+        .select('imovel_tb.id_imovel as id_imovel')
+        .select('name_imovel', 'price_day', 'price_week','price_mouth')
+        .sum('desire_reting as desire_reting')
+        .sum('view_reting as view_reting')
+        .select('imovel_tb.created_at as created_at')
+        .where('imovel_tb.deleted_at', '=', '0000-00-00 00:00:00')
+        .groupBy('imovel_tb.id_imovel')
+        .orderBy('imovel_tb.created_at').then(async(dados) => {
+            //crypto.encrypt(dados[0].id_imovel)
+            const data = dados;
+            for(let i = 0; i < dados.length; i++){
+                data[i].id_imovel = crypto.encrypt(`${dados[i].id_imovel}`);
+            }
+            return res.status(200).json(data);
+        });
+
+    }catch(ex){
+        return res.status(400).send(ex);
+    } 
+}
+module.exports = {getImovelByID, getAllImovel}
