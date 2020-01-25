@@ -21,7 +21,7 @@ async  function  createUser(res, req) {
             return res.json({ success: true, message: 'ok' });     // respond back to request
          }).catch(function (error) {
              if(error.code == 'ER_DUP_ENTRY')
-                return res.stauts(400).send({massage:'email or password have a account'});
+                return res.status(400).send({massage:'email or password have a account'});
             return res.status(400).send({message: 'request faild'});
          });
         
