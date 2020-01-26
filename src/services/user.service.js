@@ -2,11 +2,10 @@ const knex = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
-
-async  function  createUser(res, req) {
+const {validadeUser} = require('../middlewares/validateSchema');
+async  function  createUser(req, res) {
     try {
         const password_hash = await bcrypt.hash(req.body.password, 10);
-        
         const data = {
             "id_user_type": 1,
             "facebook_id": req.body.facebook_id,
@@ -15,6 +14,7 @@ async  function  createUser(res, req) {
             "cell":  req.body.cell,
             "password": password_hash
         };
+       
       // console.log(req.body);
         knex('user_tb').insert(data)
         .then( function (result) {
