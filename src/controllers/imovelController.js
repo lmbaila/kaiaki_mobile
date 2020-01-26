@@ -1,7 +1,7 @@
 const express= require('express');
 const authMiddleware = require('../middlewares/auth');
 
-const { getImovelByID, getAllImovel } = require('../services/imovel.service');
+const { getImovelByID, getAllImovel, deleteImovel } = require('../services/imovel.service');
 const router = express.Router();
 
 router.get('/:id', async(req, res) => {
@@ -11,7 +11,10 @@ router.get('/:id', async(req, res) => {
 router.get('/', async(req, res)=> {
     getAllImovel(req, res);
 });
+router.delete('/delete', async(req, res) => {      
+    deleteImovel(req, res);
 
+});
 
 router.use(authMiddleware);  //Todas as rotas que precisam de ser autenticadas ficam abaixo desta funcao
 

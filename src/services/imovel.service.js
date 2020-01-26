@@ -1,5 +1,9 @@
 const knex = require('../database');
 const crypto = require('../config/crypto');
+const date = require('date-and-time');
+const now = new Date();
+var formato = date.format(now, 'YYYY-MM-DD HH:mm:ss');
+
 function getImovelByID(req, res) {
     try{
         const id = crypto.decript(req.params.id);
@@ -40,7 +44,7 @@ function getImovelByID(req, res) {
     } catch(error){
         if(error.code == 'ERR_OSSL_EVP_WRONG_FINAL_BLOCK_LENGTH')
           return res.status(404).send({error: 'invalid URL'});
-        return res.status(400).send({error: 'request faild'});
+        return res.status(400).send({error: 'request failed'});
     }
 }
 
@@ -64,7 +68,27 @@ function getAllImovel(req, res) {
         });
 
     }catch(ex){
-        return res.status(400).send(ex);
+        return res.status(400).send({error: 'request failed'});
     } 
 }
-module.exports = {getImovelByID, getAllImovel}
+function deleteImovel(req, res){
+    try{
+        const id = crypto.decript(`${req.body.id}`);
+        knex('imovel_tb')
+        .where('id_imovel', '=', `${id}`)
+        .andWhere('deleted_at', '=', '0000-00-00 00:00:00')
+        .update('deleted_at',`${formato}`)
+        .then(async (data) => {
+            if(data ===  1)
+               return res.status(200).send({message: 'property deleted success full', code:data});
+            return res.status(400).send({message: 'the property has already been deleted', code:data});
+        }).catch((error) => {
+            return res.status(400).send({error:'failed to delete the property', code: 0});
+        });
+    }catch(ex){
+        if(!ex)
+        return res.status(400).send({message: 'the property has not found'});
+        
+    }
+}
+module.exports = {getImovelByID, getAllImovel, deleteImovel}

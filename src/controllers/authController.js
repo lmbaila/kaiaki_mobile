@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const {login, createUser} = require('../services/user.service');
+
+
 router.post('/register', async(req, res) => {
     createUser(res, req);
 });
