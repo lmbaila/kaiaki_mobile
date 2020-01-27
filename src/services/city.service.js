@@ -1,16 +1,14 @@
 const knex = require('../database');
 const crypto = require('../config/crypto');
-function getImovelByID(req, res) {
+function getCityByID(req, res) {
     try{
         const id = crypto.decript(req.params.id);
-         knex('imovel_tb')
-         .innerJoin('imovel_type_tb',  'imovel_tb.id_imovel_type',  'imovel_type_tb.id_imovel_type')
-         .innerJoin('neighborhood_tb','neighborhood_tb.id_neighborhood','imovel_tb.id_neighborhood')
-         .select('imovel_tb.id_imovel as id_imovel')
-         .select('name_type', 'name_imovel','latitude', 'longitude','description_imovel','price_day', 'price_week', 'price_mouth', 'name_neighborhood', 'neighbordhood_code')
-         .where('imovel_tb.id_imovel', '=', `${id}`).then(function (dados) {
-             const imovel = dados[0];
-             imovel.id_imovel = req.params.id; 
+         knex('city_tb')
+         .innerJoin('neighborhood_tb','neighborhood_tb.id_city','city_tb.id_city')
+         .select('city_code', 'name_city','neighbordhood_code', 'name_neighborhood')
+         .where('city_tb.id_city', '=', `${id}`).then(function (dados) {
+             const city = dados[0];
+             city.id_city = req.params.id; 
              knex('comodide_tb')
              .innerJoin('imovel_comodide_tb',  'comodide_tb.id_comodide','=', 'imovel_comodide_tb.id_comodide')
              .select('comodide_tb.id_comodide as id_comodide')
@@ -44,21 +42,17 @@ function getImovelByID(req, res) {
     }
 }
 
-function getAllImovel(req, res) {
+function getAllCity(req, res) {
     try{
-        knex('imovel_tb').leftJoin('reting_tb',  'imovel_tb.id_imovel', 'reting_tb.id_imovel')
-        .select('imovel_tb.id_imovel as id_imovel')
-        .select('name_imovel', 'price_day', 'price_week','price_mouth')
-        .sum('desire_reting as desire_reting')
-        .sum('view_reting as view_reting')
-        .select('imovel_tb.created_at as created_at')
-        .where('imovel_tb.deleted_at', '=', '0000-00-00 00:00:00')
-        .groupBy('imovel_tb.id_imovel')
-        .orderBy('imovel_tb.created_at').then(async(dados) => {
-            //crypto.encrypt(dados[0].id_imovel)
+        knex('city_tb').leftJoin('neighborhood_tb',  'city_tb.id_city', 'neighborhood_tb.id_city')
+        .select('city_code', 'name_city','neighbordhood_code', 'name_neighborhood')
+        .select('city_tb.created_at as created_at')
+        .where('city_tb.deleted_at', '=', '0000-00-00 00:00:00')
+        .groupBy('city_tb.id_city')
+        .orderBy('city_tb.created_at').then(async(dados) => {
             const data = dados;
             for(let i = 0; i < dados.length; i++){
-                data[i].id_imovel = crypto.encrypt(`${dados[i].id_imovel}`);
+                data[i].id_city = crypto.encrypt(`${dados[i].id_city}`);
             }
             return res.status(200).json(data);
         });
