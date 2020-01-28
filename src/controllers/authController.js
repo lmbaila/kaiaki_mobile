@@ -4,6 +4,7 @@ const {login, createUser} = require('../services/user.service');
 const {validadeUser} = require('../middlewares/validateSchema');
 
 router.post('/register', (req, res) => {
+    
     validadeUser(req, res);
     createUser(req, res);
 });

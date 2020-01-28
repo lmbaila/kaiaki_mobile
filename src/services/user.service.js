@@ -2,10 +2,10 @@ const knex = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
-const {validadeUser} = require('../middlewares/validateSchema');
 async  function  createUser(req, res) {
+    const password_hash = await bcrypt.hash(req.body.password, 10);
     try {
-        const password_hash = await bcrypt.hash(req.body.password, 10);
+     
         const data = {
             "id_user_type": 1,
             "facebook_id": req.body.facebook_id,
@@ -21,10 +21,10 @@ async  function  createUser(req, res) {
             return res.json({ success: true, message: 'ok' });     // respond back to request
          }).catch(function (error) {
              if(error.code == 'ER_DUP_ENTRY')
-                return res.status(400).send({massage:'email or password have a account'});
+                return res.status(400).send({massage:'email or password have a account'});  
             return res.status(400).send({message: 'request faild'});
          });
-        
+      
     }catch(ex){
         return res.status(400).send({ error: 'registration failed'});
     }
