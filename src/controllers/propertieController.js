@@ -1,18 +1,18 @@
 const express= require('express');
 const authMiddleware = require('../middlewares/auth');
 
-const { getImovelByID, getAllImovel, deleteImovel } = require('../services/imovel.service');
+const { getPropertieByID, getAllpropertie, deletepropertie } = require('../services/propertie.service');
 const router = express.Router();
 
 router.get('/:id', async(req, res) => {
-    getImovelByID(req, res); 
+    getPropertieByID(req, res); 
 });
 
 router.get('/', async(req, res)=> {
-    getAllImovel(req, res);
+    getAllpropertie(req, res);
 });
 router.delete('/delete', async(req, res) => {      
-    deleteImovel(req, res);
+    deletepropertie(req, res);
 
 });
 
