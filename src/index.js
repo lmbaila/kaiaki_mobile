@@ -12,4 +12,5 @@ require('./controllers/authController')(app);
 require('./controllers/projectController')(app);
 require('./controllers/propertieController')(app); 
 require('./controllers/cityController')(app); 
+require('./controllers/paymentController')(app); 
 app.listen(3333); 
