@@ -1,6 +1,5 @@
 const knex = require('../database');
 const crypto = require('../config/crypto');
-
 function getAllCity(req, res) {
     try{
         knex('city_tb')

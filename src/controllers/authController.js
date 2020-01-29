@@ -3,10 +3,10 @@ const router = express.Router();
 const {login, createUser} = require('../services/user.service');
 const {validadeUser} = require('../middlewares/validateSchema');
 
-router.post('/register', (req, res) => {
+router.post('/register', (req, res, next) => {
     
     validadeUser(req, res);
-    createUser(req, res);
+    
 });
 
 router.post('/authenticate', async(req, res) => {
