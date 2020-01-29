@@ -2,7 +2,8 @@ const knex = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
-
+const crypto = require('crypto');
+const Mailer = require('../modules/mailer');
 async  function  createUser(req, res) {
     const password_hash = await bcrypt.hash(req.body.password, 10);
     try {
@@ -14,15 +15,12 @@ async  function  createUser(req, res) {
             "cell":  req.body.cell,
             "password": password_hash
         };
-       // validadeUser(data, res);
-       
-      // console.log(req.body);
         knex('user_tb').insert(data)
         .then( function (result) {
             return res.json({ success: true, message: 'ok' });     // respond back to request
          }).catch(function (error) {
              if(error.code == 'ER_DUP_ENTRY')
-                return res.status(400).send({massage:'email or number phone have a account'});  
+                return res.status(400).send({massage:'email or number phone have a account', error});  
             return res.status(400).send({message: 'request faild'});
          });
       
@@ -60,5 +58,38 @@ async function  login(req, res) {
        return res.send(ex);
     }
 }
+async function findUserByEmail(req, res){
+    const {mail}  = req.body;
+    try{
+      knex('user_tb').select('id_user', 'mail').where('mail', '=', mail).then(async(dados) => {
+        const data = dados[0];
 
-module.exports  = {createUser, login}
+        if(!data) return res.status(400).send({error: 'email  not found'});
+
+        const token = crypto.randomBytes(20).toString('hex'); 
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        knex('user_tb')
+        .where('id_user', data.id_user)
+        .update({ password_reset_token: token, password_reset_expires: now }).then(async (data) => {
+            //return res.json(data);
+            Mailer.sendMail({
+                to: mail,
+                from: 'oi@kaiaki.co.mz',
+                subject: 'forgot_password',
+                text: `recuperacao de senha token www.kaiaki.co.mz/fogot_password?auth=${token}`,
+                html: `recuperacao de senha token <a href='www.kaiaki.co.mz/fogot_password?auth=${token}'>link</a>`,
+            }, (err) => {
+                if(err)
+                   return res.status(400).send({error: 'can not send forgot password mail'});
+             return res.send();
+            })
+        });
+
+       });
+    }catch(err){
+        return res.status(400).send({error: 'Erro on fogot passoword,  try again.'});
+    }
+      
+}
+module.exports  = {createUser, login, findUserByEmail}

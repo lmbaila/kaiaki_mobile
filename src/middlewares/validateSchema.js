@@ -72,7 +72,7 @@ var userSchema = Joi.object().keys({
           });
           return errors;
         })
-  });
+});
 
   function validadeUser(req, res) {
     Joi.validate(req.body, userSchema, (err, value) => {
@@ -84,6 +84,8 @@ var userSchema = Joi.object().keys({
       }
     });
   }
+
+  
 
 
 
