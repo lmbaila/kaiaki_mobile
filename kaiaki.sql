@@ -155,19 +155,34 @@ create table reting_tb(
     constraint pk_reting primary key(id_user, id_imovel)
 );
 
+// Run this Code
 create table booking_tb(
+    id_booking int not null auto_increment,
 	id_user int not null,
     id_imovel int not null,
 	code_booking varchar(50) not null,
     qty int not null,
     price int not null,
+    check_in date NOT NULL,
+    check_out date DEFAULT NULL,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp on update current_timestamp,
 	deleted_at timestamp,
+    constraint pk_booking primary key(id_booking),
     constraint fk_booking_user foreign key(id_user) references user_tb(id_user),
     constraint fk_booking_imovel foreign key(id_imovel) references imovel_tb(id_imovel),
-    constraint pk_booking primary key(id_user, id_imovel),
     constraint un_booking unique(code_booking)
+);
+
+// Run this Code
+create table booking_confirm(
+    id_booking_confirm int not null auto_increment,
+    id_booking int not null,
+    reservation_start date not null,
+    reservation_end date not null,
+    period business_time (reservation_start, reservation_end),
+    primary key(id_booking_confirm, business_time without overlaps),    
+    constraint fk_booking_confirm foreign key(id_booking) references booking_tb(id_booking)
 );
 
 create table payment_type_tb(
@@ -180,16 +195,16 @@ create table payment_type_tb(
     constraint pk_payment_type primary key(id_payment_type)
 );
 
+// Run this Code
 create table payment_tb(
 	id_payment int not null auto_increment,
     id_payment_type int not null,
-	id_user int not null,
-    id_imovel int not null,
+	id_booking int not null,
     amount float not null,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp on update current_timestamp,
 	deleted_at timestamp,
     constraint pk_payment primary key(id_payment),
     constraint fk_payment_type foreign key(id_payment_type) references payment_type_tb(id_payment_type),
-    constraint fk_payment_booking foreign key(id_user, id_imovel) references booking_tb(id_user, id_imovel)
+    constraint fk_payment_booking foreign key(id_booking) references booking_tb(id_booking)
 );
