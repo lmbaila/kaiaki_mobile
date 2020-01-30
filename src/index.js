@@ -8,8 +8,9 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded( { extended: false} ));
-
-require('./controllers/index')(app);
-
-
+require('./controllers/authController')(app);
+require('./controllers/projectController')(app);
+require('./controllers/propertieController')(app); 
+require('./controllers/cityController')(app); 
+require('./controllers/bookingController')(app); 
 app.listen(3333); 
